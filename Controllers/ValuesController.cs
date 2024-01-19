@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using ES_CrystalDresses_WEB.Models;
 
 namespace ES_CrystalDresses_WEB.Controllers
 {
@@ -25,5 +26,14 @@ namespace ES_CrystalDresses_WEB.Controllers
             return _services.ValidateUser(UName, Pass, CompCode, FY);
         }
 
+        [HttpGet]
+        public List<AccList> GetBusyMasters(int MasterType, int VchType, string CompCode, string FY)
+        {
+            return _services.GetBusyMaster(MasterType, VchType, CompCode, FY);
+        }
+        public List<AccList> GetItemList(string CompCode, string FY, int AccCode)
+        {
+            return _services.GetPartyItems(CompCode, FY, AccCode);
+        }
     }
 }
