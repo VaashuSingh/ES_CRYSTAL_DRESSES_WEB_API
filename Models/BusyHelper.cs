@@ -9,9 +9,9 @@ using System.Web;
 using System.Configuration;
 using System.Xml;
 using System.Xml.Serialization;
+using ESCommon;
 
-
-namespace ES_CrystalDresses_WEB.Models
+namespace CRYSTAL_DRESSES_API.Models
 {
     public class BusyHelper
     {
@@ -39,7 +39,6 @@ namespace ES_CrystalDresses_WEB.Models
             }
             return Uexist;
         }
-
         private bool ConnectToBusy(string ErrorStr, BusyVoucher.ServerInfo ServerInfo)
         {
             bool Connect = false;
@@ -68,7 +67,6 @@ namespace ES_CrystalDresses_WEB.Models
             }
             return Connect;
         }
-
         private bool ConnectToBusyN(ref string ErrorStr, string _BusyAppPath, string _CompCode, int _FinYear, string _SQLServerName, string _SQLUserName, string _SQLPassword)
         {
             bool Connect = false;
@@ -97,7 +95,6 @@ namespace ES_CrystalDresses_WEB.Models
             }
             return Connect;
         }
-        
         public static string CreateXML(Object YourClassObject)
         {
             XmlDocument xmlDoc = new XmlDocument();   //Represents an XML document, 

@@ -1,14 +1,14 @@
-﻿using ES_CrystalDresses_WEB.Repository;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using ES_CrystalDresses_WEB.Models;
+using CRYSTAL_DRESSES_API.Models;
+using CRYSTAL_DRESSES_API.Repository;
 
-namespace ES_CrystalDresses_WEB.Controllers
+namespace CRYSTAL_DRESSES_API.Controllers
 {
     public class ValuesController : ApiController
     {
@@ -34,6 +34,18 @@ namespace ES_CrystalDresses_WEB.Controllers
         public List<AccList> GetItemList(string CompCode, string FY, int AccCode)
         {
             return _services.GetPartyItems(CompCode, FY, AccCode);
+        }
+
+        [HttpGet]
+        public GetProductionOrder GetPendingProductionOrder(string CompCode, string FY, int SAccCode, string PONo)
+        {
+            return _services.GetPendingProductionDetails(CompCode, FY, SAccCode, PONo);
+        }
+
+        [HttpPost]
+        public BusyVoucher.AlertOrder PostProductionOrder(BusyVoucher.PostProductionOrder obj, string CompCode, string FY)
+        {
+            return _services.SaveAutoProductionOrderInv(obj, CompCode, FY);
         }
     }
 }

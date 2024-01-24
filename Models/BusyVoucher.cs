@@ -6,10 +6,96 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ES_CrystalDresses_WEB.Models
+namespace CRYSTAL_DRESSES_API.Models
 {
     public class BusyVoucher
     {
+        public class PostProductionOrder
+        {
+            public int AccCode { get; set; }
+            public string AccName { get; set; }
+            public int SAccCode { get; set; }
+            public string SAccName { get; set; }
+            public string PONo { get; set; }
+            public List<InvoiceItemDT> ItemInvDetails { get; set; }
+        }
+        public class InvoiceItemDT
+        {
+            public string PlanNo { get; set; }
+            public int FGItemCode { get; set; }
+            public int SFGItemCode { get; set; }
+            public int ItemCode { get; set; }
+            public string ItemName { get; set; }
+            public double Qty { get; set; }
+            public double Price { get; set; }
+            public double Amount { get; set; }
+        }
+        public class STPTData
+        {
+            public int GSTType { get; set; }
+            public bool MultiTax { get; set; }
+            public bool TaxType { get; set; }
+        }
+        public class MaterialReceipt
+        {
+            public string VchSeriesName { get; set; }
+            public string Date { get; set; }
+            public int VchType { get; set; }
+            public string StockUpdationDate { get; set; }
+            public string VchNo { get; set; }
+            public string STPTName { get; set; }
+            public string MasterName1 { get; set; }
+            public string MasterName2 { get; set; }
+            public string TranCurName { get; set; }
+            public bool BrokerInvolved { get; set; }
+            public string BrokerName { get; set; }
+            public BillingDetails BillingDetails { get; set; }
+            public VchOtherInfoDetails VchOtherInfoDetails { get; set; }
+            public List<ItemDetail> ItemEntries { get; set; }
+            public List<BSDetail> BillSundries { get; set; }
+            public int TmpVchCode { get; set; }
+            public int TmpVchSeriesCode { get; set; }
+        }
+        public class MaterialIssue
+        {
+            public string VchSeriesName { get; set; }
+            public string Date { get; set; }
+            public int VchType { get; set; }
+            public string StockUpdationDate { get; set; }
+            public string VchNo { get; set; }
+            public string STPTName { get; set; }
+            public string MasterName1 { get; set; }
+            public string MasterName2 { get; set; }
+            public string TranCurName { get; set; }
+            public bool BrokerInvolved { get; set; }
+            public string BrokerName { get; set; }
+            public BillingDetails BillingDetails { get; set; }
+            public VchOtherInfoDetails VchOtherInfoDetails { get; set; }
+            public List<ItemDetail> ItemEntries { get; set; }
+            public List<BSDetail> BillSundries { get; set; }
+            public int TmpVchCode { get; set; }
+            public int TmpVchSeriesCode { get; set; }
+        }
+        public class Sale
+        {
+            public string VchSeriesName { get; set; }
+            public string Date { get; set; }
+            public int VchType { get; set; }
+            public string StockUpdationDate { get; set; }
+            public string VchNo { get; set; }
+            public string STPTName { get; set; }
+            public string MasterName1 { get; set; }
+            public string MasterName2 { get; set; }
+            public string TranCurName { get; set; }
+            public bool BrokerInvolved { get; set; }
+            public string BrokerName { get; set; }
+            public BillingDetails BillingDetails { get; set; }
+            public VchOtherInfoDetails VchOtherInfoDetails { get; set; }
+            public List<ItemDetail> ItemEntries { get; set; }
+            public List<BSDetail> BillSundries { get; set; }
+            public int TmpVchCode { get; set; }
+            public int TmpVchSeriesCode { get; set; }
+        }
         public class BillingDetails
         {
             public string PartyName { get; set; }
@@ -184,8 +270,10 @@ namespace ES_CrystalDresses_WEB.Models
         }
         public class AlertOrder
         {
-            public string Message { get; set; }
-            public int Sucess { get; set; }
+            public int Status { get; set; }
+            public string Msg { get; set; }
+            //public string Message { get; set; }
+            //public int Success { get; set; }
             public int OrderId { get; set; }
         }
         public class Receipt

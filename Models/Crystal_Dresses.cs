@@ -4,17 +4,43 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ES_CrystalDresses_WEB.Models
+namespace CRYSTAL_DRESSES_API.Models
 {
-    public class MiniAarth
+    public class Crystal_Dresses
     {
 
+    }
+    public partial class UserValidate
+    {
+        public bool Validate { get; set; } = false;
+        public int Code { get; set; }
+        public string Name { get; set; }
     }
     public class AccList
     {
         public int Code { get; set; }
         public double Price { get; set; }
         public string Name { get; set; }
+    }
+    public class GetProductionOrderDetails
+    {
+        public string PlanNo { get; set; }
+        public int FGItemCode { get; set; }
+        public int SFGItemCode { get; set; }
+        public int ItemCode { get; set; }
+        public string ItemName { get; set; }
+        public double RQty { get; set; }
+        public double IQTy { get; set; }
+        public double Price { get; set; }
+        public double Amount { get; set; }
+
+    }
+    public class GetProductionOrder
+    {
+        public string PONo { get; set; }
+        public int CustCode { get; set; }
+        public string CustName { get; set; }
+        public List<GetProductionOrderDetails> ProductionOrderDetails { get; set; }
     }
     public class SaleOrder
     {
