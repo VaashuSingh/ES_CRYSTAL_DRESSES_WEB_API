@@ -46,6 +46,7 @@ namespace CRYSTAL_DRESSES_API.Models
             public string STPTName { get; set; }
             public string MasterName1 { get; set; }
             public string MasterName2 { get; set; }
+            public int InputType { get; set; }
             public string TranCurName { get; set; }
             public bool BrokerInvolved { get; set; }
             public string BrokerName { get; set; }
@@ -75,6 +76,10 @@ namespace CRYSTAL_DRESSES_API.Models
             public List<BSDetail> BillSundries { get; set; }
             public int TmpVchCode { get; set; }
             public int TmpVchSeriesCode { get; set; }
+            public int TranType { get; set; }
+            public int InputType { get; set; }
+            public string JobID { get; set; }
+            public string JobDate { get; set; }
         }
         public class Sale
         {
@@ -143,6 +148,8 @@ namespace CRYSTAL_DRESSES_API.Models
             public int TmpVchCode { get; set; }
             public string MC { get; set; }
             public string AF { get; set; }
+            public string JobDate { get; set; }
+            public string JobID { get; set; }
             public List<ParamStockDetails> ParamStockEntries { get; set; }
         }
         public class ParamStockDetails

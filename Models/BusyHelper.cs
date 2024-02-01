@@ -7,9 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Configuration;
-using System.Xml;
-using System.Xml.Serialization;
 using ESCommon;
+using System.Xml.Serialization;
+using System.Xml;
 
 namespace CRYSTAL_DRESSES_API.Models
 {

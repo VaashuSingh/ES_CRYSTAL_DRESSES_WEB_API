@@ -174,85 +174,201 @@ namespace CRYSTAL_DRESSES_API.Repository
         public AlertOrder SaveAutoProductionOrderInv(PostProductionOrder obj, string CompCode, string FY)
         {
             AlertOrder objResult = new AlertOrder();
-            int Status = 0;
-            string Msg = "";
-            object VchCode = 0;
-            int BusyVchCode = 0;
 
             try
             {
+                object VchCode = 0;
+                int MRBusyCode, MIBusyCode, Results;
                 string DBName = $"Busy{CompCode}_db1{FY}";
                 string constr = $"Data Source={servername}; Initial catalog={DBName}; Uid={Suser}; Pwd={Spass}";
-                SQLHELPER ConObj = new SQLHELPER(constr); int VchType = 4;
+                SQLHELPER ConObj = new SQLHELPER(constr);
 
                 BusyVoucher BusyVch = new BusyVoucher();
                 CFixedInterface FI = new CFixedInterface();
                 string XMLStr = ""; double InvAmount = 0;
                 PostProductionOrder NewInv = obj;
-
-                XMLStr = GetMRInvoiceXML(VchType, NewInv, ref InvAmount, constr);
-
-                bool Connect = false;
-                FI.CloseDB();
+                XMLStr = GetMRInvoiceXML(4, NewInv, ref InvAmount, constr);
+                bool Connect = false; FI.CloseDB();
 
                 Connect = FI.OpenCSDBForYear(BusyAppPath, servername, Suser, Spass, CompCode, Convert.ToInt16(FY));
 
-                if (Connect == true)
+                if (!Connect)
                 {
-                    object Err = "";
-                    bool Return = FI.SaveVchFromXML(VchType, XMLStr, ref Err, false, 0, ref VchCode);
+                    objResult.Status = 0; objResult.Msg = "Unable To Connect To Company"; objResult.OrderId = 0;
+                    return objResult;
+                }
 
-                    if (Return == true)
+                if (!SaveVoucherFromXML(4, XMLStr, ref VchCode, FI, out string errMsg))
+                {
+                    objResult.Status = 0; objResult.Msg = errMsg; objResult.OrderId = 0;
+                    return objResult;
+                }
+
+                MRBusyCode = clsMain.MyInt(VchCode);
+
+                XMLStr = GetMIInvoiceXML(11, NewInv, ref InvAmount, constr);
+                if (!SaveVoucherFromXML(11, XMLStr, ref VchCode, FI, out errMsg))
+                {
+                    objResult.Status = 0; objResult.Msg = errMsg; objResult.OrderId = 0;
+                    return objResult;
+                }
+
+                MIBusyCode = clsMain.MyInt(VchCode);
+
+                if (MRBusyCode <= 0 || MIBusyCode <= 0)
+                {
+                    objResult.Status = 0; objResult.Msg = "Posting not done ......."; objResult.OrderId = 0;
+                    return objResult;
+                }
+
+                int SeriesCode = GetSeriesCode(MIBusyCode, 11, constr);
+                var ResultsObj1 = SaveToDbProductionDetails(NewInv, MRBusyCode, MIBusyCode, constr);
+
+                if (ResultsObj1.Status == 1)
+                {
+                    var ResultsObj = AutoRefGeneratedInProductionOrder(NewInv, MRBusyCode, MIBusyCode, SeriesCode, constr);
+
+                    if (ResultsObj.Status == 1)
                     {
-                        BusyVchCode = clsMain.MyInt(VchCode); VchType = 11;
-                        if (BusyVchCode > 0)
-                        {
-                            XMLStr = GetMIInvoiceXML(VchType, NewInv, ref InvAmount, constr);
-
-                            bool Return1 = FI.SaveVchFromXML(VchType, XMLStr, ref Err, false, 0, ref VchCode);
-
-                            if (Return1 == true)
-                            {
-                                Status = 1; Msg = "Success";
-                            }
-                            else
-                            {
-                                Status = 0; Msg = Err.ToString();
-                            }
-                        }
-                        else
-                        {
-                            Status = 0; Msg = "Posting not done .......";
-                        }
+                        objResult.Status = 1; objResult.Msg = "Success"; objResult.OrderId = clsMain.MyInt(VchCode);
                     }
                     else
                     {
-                        Status = 0; Msg = Err.ToString();
+                        objResult.Status = 0; objResult.Msg = "Posting not done1 ......."; objResult.OrderId = 0;
                     }
-
-                    //if (Return == true)
-                    //{
-                    //    int AccCode = BusyVch.GetMasterNameToCode(constr, NewInv.AccName, 2);
-                    //    Status = 0; Msg = "Success";
-                    //}
-                    //else
-                    //{
-                    //    Status = 0; Msg = Err.ToString();
-                    //}
                 }
-                else
+                else 
                 {
-                    Status = 0; Msg = "Unable To Connect To Company";
+                    //objResult.Status = 0; objResult.Msg = "Posting not done2 ......."; objResult.OrderId = 0;
+                    objResult.Status = 0; objResult.Msg = ResultsObj1.Msg; objResult.OrderId = 0;
                 }
             }
             catch (Exception ex)
             {
                 objResult.Status = 0; objResult.Msg = ex.Message.ToString(); objResult.OrderId = 0;
-                return objResult;
             }
 
-            objResult.Status = Status; objResult.Msg = Msg; objResult.OrderId = clsMain.MyInt(VchCode);
             return objResult;
+        }
+
+        //public AlertOrder SaveAutoProductionOrderInv(PostProductionOrder obj, string CompCode, string FY)
+        //{
+        //    AlertOrder objResult = new AlertOrder();
+        //    string Msg = ""; int Status = 0; object VchCode = 0;
+
+        //    try
+        //    {
+        //        int MRBusyCode, MIBusyCode, Results;
+        //        string DBName = $"Busy{CompCode}_db1{FY}";
+        //        string constr = $"Data Source={servername}; Initial catalog={DBName}; Uid={Suser}; Pwd={Spass}";
+        //        SQLHELPER ConObj = new SQLHELPER(constr); int VchType = 4;
+
+        //        BusyVoucher BusyVch = new BusyVoucher();
+        //        CFixedInterface FI = new CFixedInterface();
+        //        string XMLStr = ""; double InvAmount = 0;
+        //        PostProductionOrder NewInv = obj;
+
+        //        XMLStr = GetMRInvoiceXML(VchType, NewInv, ref InvAmount, constr);
+
+        //        bool Connect = false;
+        //        FI.CloseDB();
+
+        //        Connect = FI.OpenCSDBForYear(BusyAppPath, servername, Suser, Spass, CompCode, Convert.ToInt16(FY));
+
+        //        if (Connect == true)
+        //        {
+        //            object Err = "";
+        //            bool Return = FI.SaveVchFromXML(VchType, XMLStr, ref Err, false, 0, ref VchCode);
+
+        //            if (Return == true)
+        //            {
+        //                MRBusyCode = clsMain.MyInt(VchCode); VchType = 11;
+        //                if (MRBusyCode > 0)
+        //                {
+        //                    XMLStr = GetMIInvoiceXML(VchType, NewInv, ref InvAmount, constr);
+        //                    bool Return1 = FI.SaveVchFromXML(VchType, XMLStr, ref Err, false, 0, ref VchCode);
+        //                    if (Return1 == true)
+        //                    {
+        //                        MIBusyCode = clsMain.MyInt(VchCode);
+
+        //                        if (MRBusyCode > 0 && MIBusyCode > 0)
+        //                        {
+        //                            int SeriesCode = GetSeriesCode(MIBusyCode, VchType, constr);
+        //                            Results = SaveToDbProductionDetails(NewInv, MRBusyCode, MIBusyCode, constr);
+        //                            if (Results == 1)
+        //                            {
+        //                                var ResultsObj = AutoRefGeneratedInProductionOrder(NewInv, MRBusyCode, MIBusyCode, SeriesCode, constr);
+
+        //                                if (ResultsObj.Status == 1)
+        //                                {
+        //                                    objResult.Status = 1; objResult.Msg = "Success"; objResult.OrderId = clsMain.MyInt(VchCode);
+        //                                }
+        //                                else
+        //                                {
+        //                                    objResult.Status = 0; objResult.Msg = "Posting not done ......."; objResult.OrderId = 0;
+        //                                }
+        //                            }
+        //                            else
+        //                            {
+        //                                objResult.Status = 0; objResult.Msg = "Posting not done ......."; objResult.OrderId = 0;
+        //                            }
+        //                        }
+        //                        else
+        //                        {
+        //                            Status = 0; Msg = "Posting not done .......";
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        Status = 0; Msg = Err.ToString();
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    Status = 0; Msg = "Posting not done .......";
+        //                }
+        //            }
+        //            else
+        //            {
+        //                Status = 0; Msg = Err.ToString();
+        //            }
+
+        //            //if (Return == true)
+        //            //{
+        //            //    int AccCode = BusyVch.GetMasterNameToCode(constr, NewInv.AccName, 2);
+        //            //    Status = 0; Msg = "Success";
+        //            //}
+        //            //else
+        //            //{
+        //            //    Status = 0; Msg = Err.ToString();
+        //            //}
+        //        }
+        //        else
+        //        {
+        //            Status = 0; Msg = "Unable To Connect To Company";
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        objResult.Status = 0; objResult.Msg = ex.Message.ToString(); objResult.OrderId = 0;
+        //        return objResult;
+        //    }
+        //    objResult.Status = Status; objResult.Msg = Msg; objResult.OrderId = clsMain.MyInt(VchCode);
+        //    return objResult;
+        //}
+        private bool SaveVoucherFromXML(int vchType, string xmlStr, ref object vchCode, CFixedInterface fi, out string errMsg)
+        {
+            object err = "";
+            bool result = fi.SaveVchFromXML(vchType, xmlStr, ref err, false, 0, ref vchCode);
+            errMsg = err.ToString();
+            if (errMsg == "") 
+            {
+                return result;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public string GetMRInvoiceXML(int VchType, PostProductionOrder Inv, ref double InvAmount, string ConnectionString)
@@ -267,11 +383,12 @@ namespace CRYSTAL_DRESSES_API.Repository
                 BusyVoucher.MaterialReceipt ORD = new BusyVoucher.MaterialReceipt();
                 ORD.VchSeriesName = VchSeriesName; //Inv.SeriesName; //BVch.GetMasterCodeToName(ConnStr, SeriesCode).Replace("12", "");
                 ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
-                ORD.VchNo = Inv.PONo;
+                ORD.VchNo = "";
                 ORD.VchType = VchType;
                 ORD.StockUpdationDate = ORD.Date;
                 ORD.MasterName1 = Inv.SAccName; //BVch.GetMasterCodeToName(ConnStr, clsMain.MyInt(PartyId));
                 ORD.MasterName2 = "Main Store"; //Inv.MCName; //BVch.GetMasterCodeToName(ConnStr, MCCode);
+                ORD.InputType = 1;
                 ORD.TranCurName = "";
                 ORD.TmpVchCode = 0;
                 ORD.TmpVchSeriesCode = 253;
@@ -312,13 +429,16 @@ namespace CRYSTAL_DRESSES_API.Repository
                     InvAmount = InvAmount + clsMain.MyDouble(ID.Amt);
                     ID.TmpVchCode = 0;
                     ID.MC = ORD.MasterName2;
-                    ID.AF = "";
+                    ID.AF = Inv.PONo;
                     ID.ItemDescInfo = new BusyVoucher.ItemDescInfo();
-                    //ID.ItemDescInfo.Description1 = item.IDescription1;
+                    //ID.ItemDescInfo.Description1 = item.PlanNo;
                     //ID.ItemDescInfo.Description2 = item.IDescription2;
                     //ID.ItemDescInfo.Description3 = item.IDescription3;
                     //ID.ItemDescInfo.Description4 = item.IDescription4;
                     //ID.ItemDescInfo.tmpSrNo = SrNo;
+                    //ID.JobID = item.PlanNo;
+                    //ID.Date = ORD.Date;
+
                     //ID.ItemSerialNoEntries = new List<BusyVoucher.ItemSerialNoDetail>();
                     //ISSrNo = 0;
                     //foreach (var SerialItem in item.ItemSerailDT)
@@ -360,18 +480,19 @@ namespace CRYSTAL_DRESSES_API.Repository
                 BusyVoucher.MaterialIssue ORD = new BusyVoucher.MaterialIssue();
                 ORD.VchSeriesName = VchSeriesName; //Inv.SeriesName; //BVch.GetMasterCodeToName(ConnStr, SeriesCode).Replace("12", "");
                 ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
-                ORD.VchNo = Inv.PONo;
+                ORD.VchNo = "";
                 ORD.VchType = VchType;
                 ORD.StockUpdationDate = ORD.Date;
                 ORD.MasterName1 = Inv.AccName; //BVch.GetMasterCodeToName(ConnStr, clsMain.MyInt(PartyId));
                 ORD.MasterName2 = "Main Store"; //Inv.MCName; //BVch.GetMasterCodeToName(ConnStr, MCCode);
+                ORD.InputType = 1;
                 ORD.TranCurName = "";
                 ORD.TmpVchCode = 0;
                 ORD.TmpVchSeriesCode = 253;
-
+                ORD.TranType = 8;
                 ORD.ItemEntries = new List<BusyVoucher.ItemDetail>();
                 //ORD.BillSundries = new List<BusyVoucher.BSDetail>();
-                //ORD.VchOtherInfoDetails = new BusyVoucher.VchOtherInfoDetails();
+                ORD.VchOtherInfoDetails = new BusyVoucher.VchOtherInfoDetails();
 
                 //ORD.VchOtherInfoDetails.Narration1 = clsMain.MyString(Inv.Remarks);
                 //ORD.VchOtherInfoDetails.Transport = clsMain.MyString(Inv.Transport);
@@ -382,6 +503,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                 foreach (var item in Inv.ItemInvDetails)
                 {
                     BusyVoucher.ItemDetail ID = new BusyVoucher.ItemDetail();
+                    ID.ItemDescInfo = new ItemDescInfo();
                     SrNo = SrNo + 1;
                     ID.SrNo = SrNo;
                     ID.VchType = ORD.VchType;
@@ -405,13 +527,16 @@ namespace CRYSTAL_DRESSES_API.Repository
                     InvAmount = InvAmount + clsMain.MyDouble(ID.Amt);
                     ID.TmpVchCode = 0;
                     ID.MC = ORD.MasterName2;
-                    ID.AF = "";
+                    ID.JobID = Inv.PONo;
+                    ID.JobDate = ORD.Date;
+                    ID.AF = Inv.PONo;
                     ID.ItemDescInfo = new BusyVoucher.ItemDescInfo();
-                    //ID.ItemDescInfo.Description1 = item.IDescription1;
+                    //ID.ItemDescInfo.Description1 = item.PlanNo;
                     //ID.ItemDescInfo.Description2 = item.IDescription2;
                     //ID.ItemDescInfo.Description3 = item.IDescription3;
                     //ID.ItemDescInfo.Description4 = item.IDescription4;
                     //ID.ItemDescInfo.tmpSrNo = SrNo;
+
                     //ID.ItemSerialNoEntries = new List<BusyVoucher.ItemSerialNoDetail>();
                     //ISSrNo = 0;
                     //foreach (var SerialItem in item.ItemSerailDT)
@@ -441,7 +566,127 @@ namespace CRYSTAL_DRESSES_API.Repository
             return XMLStr;
         }
 
-        public static string CreateXML(Object YourClassObject)
+        public dynamic SaveToDbProductionDetails(PostProductionOrder inv, int MRVchCode, int MIVchCode, string ConnectionString)
+        {
+            try
+            {
+                SQLHELPER ObjCon = new SQLHELPER(ConnectionString);
+                DateTime CurrDate = DateTime.Today; string sql = "";
+
+                foreach (var item in inv.ItemInvDetails)
+                {
+                    ObjCon = new SQLHELPER(ConnectionString);
+
+                    sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 4, 3, 2, {inv.AccCode}, '{inv.PONo}',CONVERT(Date,Getdate(),103) , 0, {item.ItemCode}, {item.Qty * -1}, {item.SFGItemCode}, '', {inv.SAccCode}, 0, {MRVchCode}) ";
+                    int result = ObjCon.ExecuteSQL(sql);
+
+                    if (result > 0)
+                    {
+                        ObjCon = new SQLHELPER(ConnectionString);
+
+                        sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 4, 4, 1, {inv.AccCode}, '{inv.PONo}', CONVERT(Date,Getdate(),103), 0, {item.ItemCode}, {item.Qty}, {item.SFGItemCode}, '', {inv.SAccCode}, 0, {MRVchCode}) ";
+                        result = ObjCon.ExecuteSQL(sql);
+
+                        sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 4, 4, 2, {inv.AccCode}, '{inv.PONo}', CONVERT(Date,Getdate(),103), 0, {item.ItemCode}, {item.Qty * -1}, {item.SFGItemCode}, '', {inv.SAccCode}, 0, {MIVchCode}) ";
+                        result = ObjCon.ExecuteSQL(sql);
+                    }
+                    else
+                    {
+                        return new { Status = 1, Msg = "Unable To Connect To Company" };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new { Status = 0, Msg = ex.Message.ToString() };
+            }
+            return new { Status = 1, Msg ="Success" };
+        }
+
+        public dynamic AutoRefGeneratedInProductionOrder(PostProductionOrder Inv, int MRVchCode, int MIVchCode,int SeriesCode, string ConStr)
+        {
+            try
+            {
+                SQLHELPER ConObj = new SQLHELPER(ConStr);
+                string sql = ""; double RQty = 0;
+                DateTime CurrDate = DateTime.Today;
+                int Result = 0; double Qty = 0;
+
+                ConObj = new SQLHELPER(ConStr); 
+
+                //sql = $"select A.RefNo as ProdNo,A.FgItem as SFGItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And PlanNo = A.PlanNo And ItemCode = A.FgItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,A.FgItem Order By A.RefNo";
+                sql = $"select A.RefNo as ProdNo,A.FgItem as SFGItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And ItemCode = A.FgItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,A.FgItem Order By A.RefNo";
+                DataTable DT1 = ConObj.getTable(sql);
+
+                if (DT1 != null && DT1.Rows.Count > 0)
+                {
+                    foreach (DataRow item1 in DT1.Rows)
+                    {
+                        ConObj = new SQLHELPER(ConStr);
+                        Qty = clsMain.MyDouble(item1["RQty"]);
+
+                        //sql = $"select A.FgItem,Sum(A.Qty) as AdjQty From ESRefTran A where AccCode = {Inv.AccCode} And RefNo = '{item1["ProdNo"]}' And PlanNo = '{item1["PlanNo"]}' And ItemCode = {item1["SFGItem"]} And rectype = 5 Group By A.FgItem";
+                        sql = $"select A.FgItem,Sum(A.Qty) as AdjQty From ESRefTran A where AccCode = {Inv.AccCode} And RefNo = '{item1["ProdNo"]}' And ItemCode = {item1["SFGItem"]} And rectype = 5 Group By A.FgItem";
+                        DataTable DT2 = ConObj.getTable(sql);
+
+                        if (DT2 != null && DT2.Rows.Count > 0)
+                        {
+                            foreach(DataRow item2 in DT2.Rows)
+                            {
+                                ConObj = new SQLHELPER(ConStr);
+                                RQty = clsMain.MyDouble(item2["AdjQty"]);
+                                if (Qty >= RQty)
+                                {
+                                    sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 5, 2, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {item1["SFGItem"]}, {RQty * -1}, {item2["FgItem"]}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                                    Result = ConObj.ExecuteSQL(sql);
+
+                                    sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {item1["SFGItem"]}, {RQty}, {item2["FgItem"]}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                                    Result = ConObj.ExecuteSQL(sql);
+                                }
+                                else
+                                {
+                                    sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 5, 2, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {item1["SFGItem"]}, {Qty * -1}, {item2["FgItem"]}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                                    Result = ConObj.ExecuteSQL(sql);
+
+                                    sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {item1["SFGItem"]}, {Qty}, {item2["FgItem"]}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                                    Result = ConObj.ExecuteSQL(sql);
+                                }
+                                if (Qty == 0) { break; }
+                            }
+                        }
+                    }
+                }
+
+                sql = $"Delete From JobFinishedRefs Where [VchCode] = {MIVchCode} ";
+                Result = ConObj.ExecuteSQL(sql);
+
+                ConObj = new SQLHELPER(ConStr);
+
+                sql = $"select A.[RefNo] as ProdNo,[FgItem] as SFGItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And ItemCode = A.FGItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,FgItem Order By A.RefNo";
+                DataTable DT = ConObj.getTable(sql);
+
+                if (DT != null && DT.Rows.Count > 0)
+                {
+                    foreach (DataRow itemDT in DT.Rows)
+                    {
+                        ConObj = new SQLHELPER(ConStr);
+                        RQty = clsMain.MyDouble(itemDT["RQty"]);
+                        if (RQty > 0)
+                        {
+                            sql = $"Insert Into JobFinishedRefs ([JobId], [TranType], [VchCode], [MasterCode1], [MasterCode2], [SrNo], [VchType], [Date], [VchNo], [VchSeriesCode], [CM1], [Value1], [Value2], [C1], [C2], [C3], [Date1], [Rectype]) Values ('{itemDT["ProdNo"]}', 8, {MIVchCode}, {itemDT["SFGItem"]}, {Inv.AccCode}, 1, 11, CONVERT(Date,Getdate(),103), '{Inv.PONo}', {SeriesCode}, 0, {RQty * -1}, {RQty * -1}, '','', '', CONVERT(Date,Getdate(),103) ,2)";
+                            Result = ConObj.ExecuteSQL(sql);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new { Status = 0, Msg = ex.Message.ToString() };
+            }
+            return new { Status = 1, Msg = "Success" };
+        }
+
+        private static string CreateXML(Object YourClassObject)
         {
             XmlDocument xmlDoc = new XmlDocument();   //Represents an XML document, 
             // Initializes a new instance of the XmlDocument class.          
@@ -499,5 +744,24 @@ namespace CRYSTAL_DRESSES_API.Repository
             return Name;
         }
 
+        public int GetSeriesCode(int VchCode, int VchType, string ConStr)
+        {
+            int SeriesCode = 0;
+            try
+            {
+                SQLHELPER ConObj = new SQLHELPER(ConStr);
+                string sql = $"select distinct A.[VchSeriesCode] as SeriesCode, B.[Name] from Tran1 A Inner Join Master1 B On A.VchSeriesCode = B.Code And B.Mastertype = 21 Where A.VchCode = {VchCode} And A.Vchtype = {VchType} Order By A.VchSeriesCode";
+                DataTable DT = ConObj.getTable(sql);
+                if (DT != null && DT.Rows.Count > 0)
+                {
+                    SeriesCode = clsMain.MyInt(DT.Rows[0]["SeriesCode"]);
+                }
+            }
+            catch (Exception ex)
+            {
+                return 0;
+            }
+            return SeriesCode;
+        }
     }
 }
