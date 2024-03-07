@@ -30,7 +30,7 @@ namespace CRYSTAL_DRESSES_API.Models
         public int ItemCode { get; set; }
         public string ItemName { get; set; }
         public double RQty { get; set; }
-        public double IQTy { get; set; }
+        public double IQty { get; set; }
         public double Price { get; set; }
         public double Amount { get; set; }
 
@@ -41,6 +41,26 @@ namespace CRYSTAL_DRESSES_API.Models
         public int CustCode { get; set; }
         public string CustName { get; set; }
         public List<GetProductionOrderDetails> ProductionOrderDetails { get; set; }
+    }
+
+    public class GetMRAutoSyncDet
+    {
+        public int VchCode { get; set; }
+        //public int ItemDesc { get; set; }
+        public string SName { get; set; }
+        public string VchDate { get; set; }
+        public string VchNo { get; set; }
+        public double GrandTot { get; set; }
+    }
+
+    public class GetMRAutoSyncItemDet
+    {
+        public int SrNo { get; set; }
+        public string ItemName { get; set; }
+        public string UnitName { get; set; }
+        public double Qty { get; set; }
+        public double Price { get; set; }
+        public double Amount { get; set; }
     }
     public class SaleOrder
     {

@@ -41,6 +41,7 @@ namespace CRYSTAL_DRESSES_API.Models
             public string VchSeriesName { get; set; }
             public string Date { get; set; }
             public int VchType { get; set; }
+            public int TranType { get; set; }
             public string StockUpdationDate { get; set; }
             public string VchNo { get; set; }
             public string STPTName { get; set; }
@@ -56,6 +57,7 @@ namespace CRYSTAL_DRESSES_API.Models
             public List<BSDetail> BillSundries { get; set; }
             public int TmpVchCode { get; set; }
             public int TmpVchSeriesCode { get; set; }
+            public double TmpTotalAmt { get; set; }
         }
         public class MaterialIssue
         {

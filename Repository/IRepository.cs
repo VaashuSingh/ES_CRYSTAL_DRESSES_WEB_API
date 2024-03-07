@@ -16,6 +16,8 @@ namespace CRYSTAL_DRESSES_API.Repository
         GetProductionOrder GetPendingProductionDetails(string CompCode, string FY, int SAccCode, string PONo);
         BusyVoucher.AlertOrder SaveAutoProductionOrderInv(BusyVoucher.PostProductionOrder obj, string CompCode, string FY);
         int GetSeriesCode(int VchCode, int VchType, string ConStr);
+        dynamic GetMRAutoSyncDetails(string CompCode, string FY, int SAccCode, string FDate, string TDate);
+        dynamic GetMRAutoSyncItemsDetails(string CompCode, string FY, int VchCode);
     }
 
 }

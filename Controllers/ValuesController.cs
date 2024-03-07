@@ -47,5 +47,17 @@ namespace CRYSTAL_DRESSES_API.Controllers
         {
             return _services.SaveAutoProductionOrderInv(obj, CompCode, FY);
         }
+
+        [HttpGet]
+        public dynamic GetMRAutoSyncProdDet(string CompCode, string FY, int SAccCode,string FDate, string TDate)
+        {
+            return _services.GetMRAutoSyncDetails(CompCode, FY, SAccCode, FDate, TDate);
+        }
+
+        [HttpGet]
+        public dynamic GetMRAutoSyncProdItemsDet(string CompCode, string FY, int VchCode)
+        {
+            return _services.GetMRAutoSyncItemsDetails(CompCode, FY, VchCode);
+        }
     }
 }
