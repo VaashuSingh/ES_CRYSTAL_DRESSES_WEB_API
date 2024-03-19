@@ -13,11 +13,13 @@ namespace CRYSTAL_DRESSES_API.Repository
         dynamic ValidateUser(string UName, string Pass, string CompCode, int FY);
         List<AccList> GetBusyMaster(int MasterType, int VchType, string CompCode, string FY);
         List<AccList> GetPartyItems(string CompCode, string FY, int AccCode);
-        GetProductionOrder GetPendingProductionDetails(string CompCode, string FY, int SAccCode, string PONo);
+        //GetProductionOrder GetPendingProductionDetails(string CompCode, string FY, int SAccCode, string PONo);
+        dynamic GetProductionOrder(string CompCode, string FY, int SAccCode, string PONo);
         BusyVoucher.AlertOrder SaveAutoProductionOrderInv(BusyVoucher.PostProductionOrder obj, string CompCode, string FY);
         int GetSeriesCode(int VchCode, int VchType, string ConStr);
         dynamic GetMRAutoSyncDetails(string CompCode, string FY, int SAccCode, string FDate, string TDate);
         dynamic GetMRAutoSyncItemsDetails(string CompCode, string FY, int VchCode);
+        dynamic GetBusyItemMasterDt(string CompCode, string FY, int GrpCode);
     }
 
 }

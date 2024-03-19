@@ -120,8 +120,10 @@ namespace CRYSTAL_DRESSES_API.Repository
             }
             return lst;
         }
-        public GetProductionOrder GetPendingProductionDetails(string CompCode, string FY, int SAccCode, string PONo)
+
+        public dynamic GetProductionOrder(string CompCode, string FY, int SAccCode, string PONo)
         {
+            GetProductionOrder productionOrder = new GetProductionOrder();
             try
             {
                 string DBName = $"Busy{CompCode}_db1{FY}";
@@ -131,25 +133,13 @@ namespace CRYSTAL_DRESSES_API.Repository
 
                 if (SAccCode == 0)
                 {
-                    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name] Order By C.[Name]";
+                    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp,IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
                 }
                 else
                 {
-                    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name] Order By C.[Name]";
+                    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
                 }
-
-                //With Plan Wise
-                //if (SAccCode == 0)
-                //{
-                //    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, IsNull(A.PlanNo,'') AS PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.PlanNo = D.PlanNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.PlanNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name] Order By C.[Name]";
-                //}
-                //else
-                //{
-                //    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, IsNull(A.PlanNo,'') AS PlanNo,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.PlanNo = D.PlanNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.PlanNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name] Order By C.[Name]";
-                //}
                 System.Data.DataTable table = obj.getTable(sql);
-
-                GetProductionOrder productionOrder = new GetProductionOrder();
 
                 if (table != null && table.Rows.Count > 0)
                 {
@@ -166,6 +156,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                             PlanNo = Convert.ToString(row["PlanNo"]),
                             FGItemCode = Convert.ToInt32(row["FGItemCode"]),
                             SFGItemCode = Convert.ToInt32(row["SFGItemCode"]),
+                            IGrp = clsMain.MyInt(row["Igrp"]),
                             ItemCode = Convert.ToInt32(row["ItemCode"]),
                             ItemName = row["ItemName"].ToString(),
                             RQty = Convert.ToDouble(row["RQty"]),
@@ -175,13 +166,81 @@ namespace CRYSTAL_DRESSES_API.Repository
                         });
                     }
                 }
-                return productionOrder;
+                else
+                {
+                    return new { Status = 0, Msg = "Data Not Found ....." };
+                }
             }
             catch (Exception ex)
             {
-                return null;
+                return new { Status = 0, Msg = ex.Message.ToString() };
             }
+            return new { Status = 1, Msg = "Success", Data = productionOrder };
         }
+
+        //public GetProductionOrder GetPendingProductionDetails(string CompCode, string FY, int SAccCode, string PONo)
+        //{
+        //    try
+        //    {
+        //        string DBName = $"Busy{CompCode}_db1{FY}";
+        //        string constr = $"Data Source={servername}; Initial catalog={DBName}; Uid={Suser}; Pwd={Spass}";
+        //        SQLHELPER obj = new SQLHELPER(constr);
+        //        string sql = "";
+
+        //        if (SAccCode == 0)
+        //        {
+        //            sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp,IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
+        //        }
+        //        else
+        //        {
+        //            sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
+        //        }
+
+        //        //With Plan Wise
+        //        //if (SAccCode == 0)
+        //        //{
+        //        //    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, IsNull(A.PlanNo,'') AS PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.PlanNo = D.PlanNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.PlanNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name] Order By C.[Name]";
+        //        //}
+        //        //else
+        //        //{
+        //        //    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, IsNull(A.PlanNo,'') AS PlanNo,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.PlanNo = D.PlanNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.PlanNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name] Order By C.[Name]";
+        //        //}
+        //        System.Data.DataTable table = obj.getTable(sql);
+
+        //        GetProductionOrder productionOrder = new GetProductionOrder();
+
+        //        if (table != null && table.Rows.Count > 0)
+        //        {
+        //            productionOrder.PONo = table.Rows[0]["PONo"].ToString();
+        //            productionOrder.CustCode = Convert.ToInt32(table.Rows[0]["CustCode"]);
+        //            productionOrder.CustName = table.Rows[0]["CustName"].ToString();
+
+        //            productionOrder.ProductionOrderDetails = new List<GetProductionOrderDetails>();
+
+        //            foreach (DataRow row in table.Rows)
+        //            {
+        //                productionOrder.ProductionOrderDetails.Add(new GetProductionOrderDetails
+        //                {
+        //                    PlanNo = Convert.ToString(row["PlanNo"]),
+        //                    FGItemCode = Convert.ToInt32(row["FGItemCode"]),
+        //                    SFGItemCode = Convert.ToInt32(row["SFGItemCode"]),
+        //                    IGrp = clsMain.MyInt(row["Igrp"]),
+        //                    ItemCode = Convert.ToInt32(row["ItemCode"]),
+        //                    ItemName = row["ItemName"].ToString(),
+        //                    RQty = Convert.ToDouble(row["RQty"]),
+        //                    IQty = Convert.ToDouble(row["IQty"]),
+        //                    Price = Convert.ToDouble(row["Price"]),
+        //                    Amount = Convert.ToDouble(row["Amount"])
+        //                });
+        //            }
+        //        }
+        //        return productionOrder;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return null;
+        //    }
+        //}
         public AlertOrder SaveAutoProductionOrderInv(PostProductionOrder obj, string CompCode, string FY)
         {
             AlertOrder objResult = new AlertOrder();
@@ -1001,6 +1060,39 @@ namespace CRYSTAL_DRESSES_API.Repository
             }
             return new { Status = 1, Msg = "Success", Data = IList };
         }
-    }
 
+        public dynamic GetBusyItemMasterDt(string CompCode, string FY, int GrpCode)
+        {
+            List<ItemList> IList = new List<ItemList>();
+            try
+            {
+                string DBName = $"Busy{CompCode}_db1{FY}";
+                string constr = $"Data Source = {servername}; Initial Catalog = {DBName}; Uid = {Suser}; PWd = {Spass}";
+                SQLHELPER ConObj = new SQLHELPER(constr);
+
+                string sql = $"Select Code,[Name] From Master1 Where ParentGrp = {GrpCode} Group By Code,[Name] Order By [Name]";
+                DataTable DT1 = ConObj.getTable(sql);
+
+                if (DT1 != null && DT1.Rows.Count > 0)
+                {
+                    foreach (DataRow row in DT1.Rows)
+                    {
+                        ItemList ListObj = new ItemList();
+                        ListObj.Code = clsMain.MyInt(row["Code"]);
+                        ListObj.Name = clsMain.MyString(row["Name"]);
+                        IList.Add(ListObj);
+                    }
+                }
+                else
+                {
+                    return new { Status = 0, Msg = "Data Not Found ....." };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new { Status = 0, Msg = ex.Message.ToString() };
+            }
+            return new { Status = 1, Msg = "Success", Data = IList };
+        }
+    }
 }

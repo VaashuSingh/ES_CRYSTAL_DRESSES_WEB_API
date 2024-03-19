@@ -16,6 +16,13 @@ namespace CRYSTAL_DRESSES_API.Models
         public int Code { get; set; }
         public string Name { get; set; }
     }
+
+    public class ItemList
+    {
+        public int Code { get; set; }
+        public string Name { get; set; }
+    }
+
     public class AccList
     {
         public int Code { get; set; }
@@ -27,13 +34,13 @@ namespace CRYSTAL_DRESSES_API.Models
         public string PlanNo { get; set; }
         public int FGItemCode { get; set; }
         public int SFGItemCode { get; set; }
+        public int IGrp { get; set; }
         public int ItemCode { get; set; }
         public string ItemName { get; set; }
         public double RQty { get; set; }
         public double IQty { get; set; }
         public double Price { get; set; }
         public double Amount { get; set; }
-
     }
     public class GetProductionOrder
     {

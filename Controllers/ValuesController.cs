@@ -36,10 +36,16 @@ namespace CRYSTAL_DRESSES_API.Controllers
             return _services.GetPartyItems(CompCode, FY, AccCode);
         }
 
+        //[HttpGet]
+        //public GetProductionOrder GetPendingProductionOrder(string CompCode, string FY, int SAccCode, string PONo)
+        //{
+        //    return _services.GetPendingProductionDetails(CompCode, FY, SAccCode, PONo);
+        //}
+
         [HttpGet]
-        public GetProductionOrder GetPendingProductionOrder(string CompCode, string FY, int SAccCode, string PONo)
+        public dynamic GetPendingProductionOrder(string CompCode, string FY, int SAccCode, string PONo)
         {
-            return _services.GetPendingProductionDetails(CompCode, FY, SAccCode, PONo);
+            return _services.GetProductionOrder(CompCode, FY, SAccCode, PONo);
         }
 
         [HttpPost]
@@ -58,6 +64,12 @@ namespace CRYSTAL_DRESSES_API.Controllers
         public dynamic GetMRAutoSyncProdItemsDet(string CompCode, string FY, int VchCode)
         {
             return _services.GetMRAutoSyncItemsDetails(CompCode, FY, VchCode);
+        }
+
+        [HttpGet]
+        public dynamic GetBusyItemMaster(string CompCode, string FY, int GrpCode)
+        {
+            return _services.GetBusyItemMasterDt(CompCode, FY, GrpCode);
         }
     }
 }
