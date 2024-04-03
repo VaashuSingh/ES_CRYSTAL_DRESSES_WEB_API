@@ -22,8 +22,12 @@ namespace CRYSTAL_DRESSES_API.Models
         public class InvoiceItemDT
         {
             public string PlanNo { get; set; }
+            public int MainFGItem { get; set; }
+            public int SRawCode { get; set; }
+            public string LotNo { get; set; }
             public int FGItemCode { get; set; }
             public int SFGItemCode { get; set; }
+            public int RItemCode { get; set; }
             public int ItemCode { get; set; }
             public string ItemName { get; set; }
             public double Qty { get; set; }

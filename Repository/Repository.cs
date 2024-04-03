@@ -133,11 +133,13 @@ namespace CRYSTAL_DRESSES_API.Repository
 
                 if (SAccCode == 0)
                 {
-                    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp,IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
+                    sql = $"Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo,A.MainFGItem,A.SRawCode,A.Lotno,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode,A.ItemCode as RItemCode,A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By C.[Name]";
+                    //sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp,IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
                 }
                 else
                 {
-                    sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
+                    sql = $"Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo,A.MainFGItem,A.SRawCode,A.Lotno,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode,A.ItemCode as RItemCode,A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode IN {(SAccCode, -101)} And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By C.[Name]";
+                    //sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
                 }
                 System.Data.DataTable table = obj.getTable(sql);
 
@@ -154,9 +156,13 @@ namespace CRYSTAL_DRESSES_API.Repository
                         productionOrder.ProductionOrderDetails.Add(new GetProductionOrderDetails
                         {
                             PlanNo = Convert.ToString(row["PlanNo"]),
+                            MainFGItem = clsMain.MyInt(row["MainFGItem"]),
+                            SRawCode = clsMain.MyInt(row["SRawCode"]),
+                            LotNo = clsMain.MyString(row["LotNo"]),
                             FGItemCode = Convert.ToInt32(row["FGItemCode"]),
                             SFGItemCode = Convert.ToInt32(row["SFGItemCode"]),
                             IGrp = clsMain.MyInt(row["Igrp"]),
+                            RItemCode = clsMain.MyInt(row["RItemCode"]),
                             ItemCode = Convert.ToInt32(row["ItemCode"]),
                             ItemName = row["ItemName"].ToString(),
                             RQty = Convert.ToDouble(row["RQty"]),
@@ -257,7 +263,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                 BusyVoucher BusyVch = new BusyVoucher();
                 CFixedInterface FI = new CFixedInterface();
 
-                string XMLStr = ""; double InvAmount = 0;
+                string XMLStr = ""; double InvAmount = 0; double InvQty = 0;
                 PostProductionOrder NewInv = obj;
 
                 // 1. Get STPTName code | 2. Get MR Series Name |  3. Get MI Series Name |  4. Get Material Center
@@ -289,7 +295,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                 MRBusyCode = clsMain.MyInt(VchCode);
 
                 // Generate MI invoice XML
-                XMLStr = GetMIInvoiceXML(11, NewInv, clsMain.MyString(MISeriesName), clsMain.MyString(MCName), ref InvAmount, constr);
+                XMLStr = GetMIInvoiceXML(11, NewInv, clsMain.MyString(MISeriesName), clsMain.MyString(MCName), ref InvAmount, ref InvQty, constr);
 
                 // Save MR invoice
                 if (!SaveVoucherFromXML(11, XMLStr, ref VchCode, FI, out errMsg))
@@ -315,7 +321,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                 int SeriesCode = GetSeriesCode(MIBusyCode, 11, constr);
 
                 // Call SaveToDbProductionDetails method
-                var ResultsObj1 = SaveToDbProductionDetails(NewInv, MRBusyCode, MIBusyCode, constr);
+                var ResultsObj1 = SaveToDbProductionDetails(NewInv, MRBusyCode, MIBusyCode, InvQty, constr);
 
                 if (ResultsObj1.Status != 1)
                 {
@@ -603,7 +609,7 @@ namespace CRYSTAL_DRESSES_API.Repository
             return XMLStr;
         }
 
-        public string GetMIInvoiceXML(int VchType, PostProductionOrder Inv, string VchSeriesName, string MCName, ref double InvAmount, string ConnectionString)
+        public string GetMIInvoiceXML(int VchType, PostProductionOrder Inv, string VchSeriesName, string MCName, ref double InvAmount, ref double InvQty, string ConnectionString)
         {
             string XMLStr = "";
             try
@@ -645,6 +651,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                     ID.UnitName = BVch.GetItemMainUnitName(ConnectionString, clsMain.MyInt(item.ItemCode));
                     ID.ConFactor = 1;
                     ID.Qty = clsMain.MyDouble(item.Qty);
+                    InvQty = InvQty + clsMain.MyDouble(item.Qty);
                     ID.QtyMainUnit = clsMain.MyDouble(ID.Qty);
                     ID.QtyAltUnit = 0;
                     ID.ConFactor = 0;
@@ -698,10 +705,9 @@ namespace CRYSTAL_DRESSES_API.Repository
             return XMLStr;
         }
 
-        public dynamic SaveToDbProductionDetails(PostProductionOrder inv, int MRVchCode, int MIVchCode, string ConStr)
+        public dynamic SaveToDbProductionDetails(PostProductionOrder inv, int MRVchCode, int MIVchCode, double InvQty, string ConStr)
         {
             SQLHELPER ObjCon = new SQLHELPER(ConStr);
-            //ObjCon.BeginTransaction();
             try
             {
                 var CurrDate = DateTime.Today.ToString("dd/MMM/yyyy"); string sql = "";
@@ -711,18 +717,22 @@ namespace CRYSTAL_DRESSES_API.Repository
 
                 foreach (var item in inv.ItemInvDetails)
                 {
-                    sql = $"INSERT INTO ESRefTran ([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [BusyCode]) " +
-                          $"VALUES (0, 4, 3, 2, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.ItemCode}, {item.Qty * (-1)}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {MRVchCode}) ";
+                    sql = $"INSERT INTO ESRefTran ([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [MainFGItem], [SRawCode], [LotNo], [BusyCode]) " +
+                          $"VALUES (0, 4, 3, 2, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.RItemCode}, {item.Qty * (-1)}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {item.MainFGItem}, {item.SRawCode}, '{item.LotNo}', {MRVchCode}) ";
                     int result = ObjCon.ExecuteSQL(sql);
 
                     if (result == 1)
                     {
-                        sql = $"INSERT INTO ESRefTran ([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) " + 
-                              $"Values (0, 4, 4, 1, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.ItemCode}, {item.Qty}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {MRVchCode}) ";
+                        sql = $"INSERT INTO ESRefTran ([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [MainFGItem], [SRawCode], [LotNo], [BusyCode]) " + 
+                              $"Values (0, 4, 4, 1, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.ItemCode}, {item.Qty}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {item.MainFGItem}, {item.SRawCode}, '{item.LotNo}', {MRVchCode}) ";
                         result = ObjCon.ExecuteSQL(sql);
 
-                        sql = $"INSERT INTO ESRefTran ([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) " +
-                              $"Values (0, 4, 4, 2, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.ItemCode}, {item.Qty * (-1)}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {MIVchCode}) ";
+                        sql = $"INSERT INTO ESRefTran ([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [MainFGItem], [SRawCode], [LotNo], [BusyCode]) " +
+                              $"Values (0, 4, 4, 2, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.ItemCode}, {item.Qty * (-1)}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {item.MainFGItem}, {item.SRawCode}, '{item.LotNo}', {MIVchCode}) ";
+                        result = ObjCon.ExecuteSQL(sql);
+
+                        sql = $"Insert into ESRawReftran (Vchcode, [DtDate], [Vchtype], [Rectype], [Method], [RefNo], [FGItem], [SfgItem], [SourceRawCode], [RawItemcode], [AccCode], [RawQty], [LotNo]) " +
+                              $"Values ({MIVchCode}, '{CurrDate}', 11, 1, 1, '{inv.PONo}', {item.MainFGItem}, {item.SFGItemCode}, {item.SRawCode}, {item.RItemCode}, {inv.AccCode}, {InvQty}, '{item.LotNo}')";
                         result = ObjCon.ExecuteSQL(sql);
                     }
                     else
@@ -730,11 +740,9 @@ namespace CRYSTAL_DRESSES_API.Repository
                         return new { Status = 0, Msg = "Unable To Connect To Company" };
                     }
                 }
-                //ObjCon.CommitTransaction();
             }
             catch (Exception ex)
             {
-                //ObjCon.RollbackTransaction();   
                 return new { Status = 0, Msg = ex.Message.ToString() };
             }
             return new { Status = 1, Msg ="Success" };
@@ -745,13 +753,12 @@ namespace CRYSTAL_DRESSES_API.Repository
             SQLHELPER ObjExe = new SQLHELPER(ConStr);
             try
             {
-                //ObjExe.BeginTransaction();
                 SQLHELPER ConObj = new SQLHELPER(ConStr);
                 string sql = ""; int Result = 0;
                 DateTime CurrDate = DateTime.Today;
 
-                //sql = $"select A.RefNo as ProdNo,A.FgItem as SFGItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And PlanNo = A.PlanNo And ItemCode = A.FgItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,A.FgItem Order By A.RefNo";
-                sql = $"select A.RefNo as ProdNo,A.FgItem as SFGItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And ItemCode = A.FgItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,A.FgItem Order By A.RefNo";
+
+                sql = $"select A.RefNo as ProdNo,A.FgItem as SFGItem,A.MainFgItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And ItemCode = A.FgItem And FgItem = A.MainFgItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,A.FgItem,A.MainFgItem Order By A.RefNo" ;
                 DataTable DT1 = ConObj.getTable(sql);
 
                 if (DT1 != null && DT1.Rows.Count > 0)
@@ -759,58 +766,16 @@ namespace CRYSTAL_DRESSES_API.Repository
                     foreach (DataRow item1 in DT1.Rows)
                     {
                         int ItemCode = clsMain.MyInt(item1["SFGItem"]);
+                        int FGItem = clsMain.MyInt(item1["MainFGItem"]);
                         double Qty = clsMain.MyDouble(item1["RQty"]);
-
-                        //sql = $"select A.FgItem,Sum(A.Qty) as AdjQty From ESRefTran A where AccCode = {Inv.AccCode} And RefNo = '{item1["ProdNo"]}' And PlanNo = '{item1["PlanNo"]}' And ItemCode = {item1["SFGItem"]} And rectype = 5 Group By A.FgItem";
-                        sql = $"select A.FgItem,Sum(A.Qty) as AdjQty From ESRefTran A where AccCode = {Inv.AccCode} And RefNo = '{item1["ProdNo"]}' And ItemCode = {item1["SFGItem"]} And rectype = 5 Group By A.FgItem having Sum(Qty) >= 0.001";
-                        DataTable DT2 = ConObj.getTable(sql);
-
-                        if (DT2 != null && DT2.Rows.Count > 0)
+                 
+                        if (Qty > 0)
                         {
-                            foreach(DataRow item2 in DT2.Rows)
-                            {
-        
-                                int FGItemCode = clsMain.MyInt(item2["FgItem"]);
-                                double RQty = clsMain.MyDouble(item2["AdjQty"]);
-                                if (Qty >= RQty)
-                                {
-                                    sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 5, 2, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {RQty * -1}, {FGItemCode}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
-                                    Result = ObjExe.ExecuteSQL(sql);
+                            sql = $"insert into ESRefTran([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [BusyCode]) Values (0, 11, 5, 2, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {Qty * -1}, {FGItem}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                            Result = ObjExe.ExecuteSQL(sql);
 
-                                    if (CheckIfExistsInFGItem(ItemCode, FGItemCode, ConStr) == 1)
-                                    {
-                                        sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {FGItemCode}, {RQty}, {FGItemCode}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
-                                        Result = ObjExe.ExecuteSQL(sql);
-                                    }
-                                    else
-                                    {
-                                        sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {RQty}, {FGItemCode}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
-                                        Result = ObjExe.ExecuteSQL(sql);
-                                    }
-                                    Qty = Qty - RQty;
-                                }
-                                else
-                                {
-                                    if (Qty > 0)
-                                    {
-                                        sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 5, 2, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {item1["SFGItem"]}, {Qty * -1}, {item2["FgItem"]}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
-                                        Result = ObjExe.ExecuteSQL(sql);
-
-                                        if (CheckIfExistsInFGItem(ItemCode, FGItemCode, ConStr) == 1)
-                                        {
-                                            sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {FGItemCode}, {Qty}, {item2["FgItem"]}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
-                                            Result = ObjExe.ExecuteSQL(sql);
-                                        }
-                                        else
-                                        {
-                                            sql = $"insert into ESRefTran([VchCode],[Vchtype],[Rectype],[Method],[AccCode],[RefNo],[Dtdate],[Merchant],[ItemCode],[Qty],[FgItem],[PlanNo],[SuplierCode],[Approval],[BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {Qty}, {item2["FgItem"]}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
-                                            Result = ObjExe.ExecuteSQL(sql);
-                                        }
-                                    }
-                                    Qty = 0;
-                                }
-                                if (Qty == 0) { break; }
-                            }
+                            sql = $"insert into ESRefTran([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {Qty}, {FGItem}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                            Result = ObjExe.ExecuteSQL(sql);
                         }
                     }
                 }
@@ -818,23 +783,29 @@ namespace CRYSTAL_DRESSES_API.Repository
                 sql = $"Delete From JobFinishedRefs Where [VchCode] = {MIVchCode} ";
                 Result = ObjExe.ExecuteSQL(sql);
 
-                //sql = $"select A.[RefNo] as ProdNo,[FgItem] as SFGItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And ItemCode = A.FGItem And rectype = 6) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,FgItem Order By A.RefNo";
-                sql = $"Select A.[RefNo] as ProdNo,[FgItem] as SFGItem, Sum(Qty) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 6 And BusyCode = {MIVchCode} group By A.RefNo,FgItem Order By A.RefNo ";
-                DataTable DT = ObjExe.getTable(sql);
+                SQLHELPER ConObj2 = new SQLHELPER(ConStr);
+                sql = $"Select A.[RefNo] as ProdNo, ItemCode as SFGItem, [FgItem], Sum(Qty) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 6 And BusyCode = {MIVchCode} group By A.RefNo,ItemCode,FgItem Order By A.RefNo ";
+                DataTable DT = ConObj2.getTable(sql);
 
                 if (DT != null && DT.Rows.Count > 0)
                 {
-                    foreach (DataRow itemDT in DT.Rows)
+                    foreach (DataRow row in DT.Rows)
                     {
-                        double RQty = clsMain.MyDouble(itemDT["RQty"]);
+                        double RQty = clsMain.MyDouble(row["RQty"]);
                         if (RQty > 0)
                         {
-                            sql = $"Insert Into JobFinishedRefs ([JobId], [TranType], [VchCode], [MasterCode1], [MasterCode2], [SrNo], [VchType], [Date], [VchNo], [VchSeriesCode], [CM1], [Value1], [Value2], [C1], [C2], [C3], [Date1], [Rectype]) Values ('{itemDT["ProdNo"]}', 8, {MIVchCode}, {itemDT["SFGItem"]}, {Inv.AccCode}, 1, 11, CONVERT(Date,Getdate(),103), '{Inv.PONo}', {SeriesCode}, 0, {RQty * (-1)}, {RQty * (-1)}, '','', '', CONVERT(Date,Getdate(),103) ,2)";
+                            if (CheckIfExistsInFGItem(clsMain.MyInt(row["SFGItem"]), clsMain.MyInt(row["FgItem"]), ConStr) == 1)
+                            {
+                                sql = $"Insert Into JobFinishedRefs ([JobId], [TranType], [VchCode], [MasterCode1], [MasterCode2], [SrNo], [VchType], [Date], [VchNo], [VchSeriesCode], [CM1], [Value1], [Value2], [C1], [C2], [C3], [Date1], [Rectype]) Values ('{row["ProdNo"]}', 8, {MIVchCode}, {row["FgItem"]}, {Inv.AccCode}, 1, 11, CONVERT(Date,Getdate(),103), '{Inv.PONo}', {SeriesCode}, 0, {RQty * (-1)}, {RQty * (-1)}, '','', '', CONVERT(Date,Getdate(),103) ,2)";
+                            }
+                            else
+                            {
+                                sql = $"Insert Into JobFinishedRefs ([JobId], [TranType], [VchCode], [MasterCode1], [MasterCode2], [SrNo], [VchType], [Date], [VchNo], [VchSeriesCode], [CM1], [Value1], [Value2], [C1], [C2], [C3], [Date1], [Rectype]) Values ('{row["ProdNo"]}', 8, {MIVchCode}, {row["SFGItem"]}, {Inv.AccCode}, 1, 11, CONVERT(Date,Getdate(),103), '{Inv.PONo}', {SeriesCode}, 0, {RQty * (-1)}, {RQty * (-1)}, '','', '', CONVERT(Date,Getdate(),103) ,2)";
+                            }
                             Result = ObjExe.ExecuteSQL(sql);
                         }
                     }
                 }
-                //ObjExe.CommitTransaction();
             }
             catch (Exception ex)
             {
