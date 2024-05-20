@@ -165,10 +165,10 @@ namespace CRYSTAL_DRESSES_API.Repository
                             RItemCode = clsMain.MyInt(row["RItemCode"]),
                             ItemCode = Convert.ToInt32(row["ItemCode"]),
                             ItemName = row["ItemName"].ToString(),
-                            RQty = Convert.ToDouble(row["RQty"]),
-                            IQty = Convert.ToDouble(row["IQty"]),
-                            Price = Convert.ToDouble(row["Price"]),
-                            Amount = Convert.ToDouble(row["Amount"])
+                            RQty = clsMain.MyDouble(row["RQty"]),
+                            IQty = clsMain.MyDouble(row["IQty"]),
+                            Price = clsMain.MyDouble(row["Price"]),
+                            Amount = clsMain.MyDouble(row["Amount"])
                         });
                     }
                 }
@@ -516,13 +516,14 @@ namespace CRYSTAL_DRESSES_API.Repository
 
         public string GetMRInvoiceXML(int VchType, PostProductionOrder Inv, string VchSeriesName, string MCName, string STPTName, ref double InvAmount, string ConnectionString)
         {
-            string XMLStr = "";
+            string XMLStr = string.Empty;
             try
             {
                 BusyVoucher BVch = new BusyVoucher();
                 BusyVoucher.MaterialReceipt ORD = new BusyVoucher.MaterialReceipt();
                 ORD.VchSeriesName = VchSeriesName; //Inv.SeriesName; //BVch.GetMasterCodeToName(ConnStr, SeriesCode).Replace("12", "");
                 ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
+                //ORD.Date = DateTime.UtcNow.ToString("29-04-2023");
                 ORD.VchNo = "";
                 ORD.VchType = VchType;
                 ORD.TranType = 3;
@@ -560,7 +561,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                     ID.QtyAltUnit = 0;
                     ID.ConFactor = 0;
                     ID.ListPrice = 0;
-                    ID.Price = clsMain.MyDouble(item.Price);
+                    ID.Price = ID.Price = clsMain.MyDouble(GetBusyItemMasterPrice(ConnectionString, clsMain.MyInt(item.ItemCode)));
                     ID.Amt = clsMain.MyDouble(ID.Price * ID.Qty);
                     //ID.DiscountPercent = clsMain.MyDouble(item.DiscPerent);
                     //ID.Discount = clsMain.MyDouble(((ID.Amt * ID.DiscountPercent) / 100).ToString("0.00"));
@@ -611,13 +612,14 @@ namespace CRYSTAL_DRESSES_API.Repository
 
         public string GetMIInvoiceXML(int VchType, PostProductionOrder Inv, string VchSeriesName, string MCName, ref double InvAmount, ref double InvQty, string ConnectionString)
         {
-            string XMLStr = "";
+            string XMLStr = string.Empty;
             try
             {
                 BusyVoucher BVch = new BusyVoucher();
                 BusyVoucher.MaterialIssue ORD = new BusyVoucher.MaterialIssue();
                 ORD.VchSeriesName = VchSeriesName; //Inv.SeriesName; //BVch.GetMasterCodeToName(ConnStr, SeriesCode).Replace("12", "");
                 ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
+                //ORD.Date = DateTime.UtcNow.ToString("29-04-2023");
                 ORD.VchNo = "";
                 ORD.VchType = VchType;
                 ORD.TranType = 8;
@@ -656,7 +658,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                     ID.QtyAltUnit = 0;
                     ID.ConFactor = 0;
                     ID.ListPrice = 0;
-                    ID.Price = clsMain.MyDouble(item.Price);
+                    ID.Price = clsMain.MyDouble(GetBusyItemMasterPrice(ConnectionString, clsMain.MyInt(item.ItemCode)));
                     ID.Amt = clsMain.MyDouble(ID.Price * ID.Qty);
                     //ID.DiscountPercent = clsMain.MyDouble(item.DiscPerent);
                     //ID.Discount = clsMain.MyDouble(((ID.Amt * ID.DiscountPercent) / 100).ToString("0.00"));
@@ -710,13 +712,18 @@ namespace CRYSTAL_DRESSES_API.Repository
             SQLHELPER ObjCon = new SQLHELPER(ConStr);
             try
             {
-                var CurrDate = DateTime.Today.ToString("dd/MMM/yyyy"); string sql = "";
+                var CurrDate = DateTime.Today.ToString("dd/MMM/yyyy"); string sql = ""; int SNo = 0;
 
                 sql = $"Update Tran1 Set [AutoSync] = 1, [AccCode] = {inv.AccCode} Where VchCode = {MRVchCode} And VchType = 4";
                 int res = ObjCon.ExecuteSQL(sql);
 
                 foreach (var item in inv.ItemInvDetails)
                 {
+                    SNo = SNo + 1;
+
+                    sql = $"Update Tran2 Set SFGItem = {item.SFGItemCode}, FgItem = {item.MainFGItem} where VchCode = {MIVchCode} and Rectype = 2 and SrNo = {SNo} ";
+                    int res1 = ObjCon.ExecuteSQL(sql);
+
                     sql = $"INSERT INTO ESRefTran ([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [MainFGItem], [SRawCode], [LotNo], [BusyCode]) " +
                           $"VALUES (0, 4, 3, 2, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.RItemCode}, {item.Qty * (-1)}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {item.MainFGItem}, {item.SRawCode}, '{item.LotNo}', {MRVchCode}) ";
                     int result = ObjCon.ExecuteSQL(sql);
@@ -731,8 +738,8 @@ namespace CRYSTAL_DRESSES_API.Repository
                               $"Values (0, 4, 4, 2, {inv.AccCode}, '{inv.PONo}', '{CurrDate}', 0, {item.ItemCode}, {item.Qty * (-1)}, {item.SFGItemCode},' ', {inv.SAccCode}, 0, {item.MainFGItem}, {item.SRawCode}, '{item.LotNo}', {MIVchCode}) ";
                         result = ObjCon.ExecuteSQL(sql);
 
-                        sql = $"Insert into ESRawReftran (Vchcode, [DtDate], [Vchtype], [Rectype], [Method], [RefNo], [FGItem], [SfgItem], [SourceRawCode], [RawItemcode], [AccCode], [RawQty], [LotNo]) " +
-                              $"Values ({MIVchCode}, '{CurrDate}', 11, 1, 1, '{inv.PONo}', {item.MainFGItem}, {item.SFGItemCode}, {item.SRawCode}, {item.RItemCode}, {inv.AccCode}, {InvQty}, '{item.LotNo}')";
+                        sql = $"Insert into ESRawReftran ([VchCode], [DtDate], [Vchtype], [Rectype], [Method], [RefNo], [FGItem], [SfgItem], [SourceRawCode], [RawItemcode], [AccCode], [RawQty], [LotNo]) " +
+                              $"Values ({MIVchCode}, '{CurrDate}', 11, 1, 1, '{inv.PONo}', {item.MainFGItem}, {item.SFGItemCode}, {item.SRawCode}, {item.ItemCode}, {inv.AccCode}, {InvQty}, '{item.LotNo}')";
                         result = ObjCon.ExecuteSQL(sql);
                     }
                     else
@@ -758,7 +765,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                 DateTime CurrDate = DateTime.Today;
 
 
-                sql = $"select A.RefNo as ProdNo,A.FgItem as SFGItem,A.MainFgItem,(Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And ItemCode = A.FgItem And FgItem = A.MainFgItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,A.FgItem,A.MainFgItem Order By A.RefNo" ;
+                sql = $"select A.RefNo as ProdNo, A.FgItem as SFGItem, A.MainFgItem, A.LotNo, (Select Sum(Qty) as RQty From ESRefTran B Where AccCode = {Inv.AccCode} And RefNo = A.RefNo And ItemCode = A.FgItem And FgItem = A.MainFgItem And rectype = 5) as RQty From ESRefTran A where A.AccCode = {Inv.AccCode} And A.RefNo = '{Inv.PONo}' And rectype = 4 And BusyCode = {MRVchCode} group By A.RefNo,A.FgItem,A.MainFgItem,A.LotNo Order By A.RefNo" ;
                 DataTable DT1 = ConObj.getTable(sql);
 
                 if (DT1 != null && DT1.Rows.Count > 0)
@@ -771,10 +778,10 @@ namespace CRYSTAL_DRESSES_API.Repository
                  
                         if (Qty > 0)
                         {
-                            sql = $"insert into ESRefTran([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [BusyCode]) Values (0, 11, 5, 2, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {Qty * -1}, {FGItem}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                            sql = $"insert into ESRefTran([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [BusyCode], [LotNo]) Values (0, 11, 5, 2, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {Qty * -1}, {FGItem}, '', {Inv.SAccCode}, 0, {MIVchCode}, '{clsMain.MyString(item1["LotNo"])}') ";
                             Result = ObjExe.ExecuteSQL(sql);
 
-                            sql = $"insert into ESRefTran([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [BusyCode]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {Qty}, {FGItem}, '', {Inv.SAccCode}, 0, {MIVchCode}) ";
+                            sql = $"insert into ESRefTran([VchCode], [Vchtype], [Rectype], [Method], [AccCode], [RefNo], [Dtdate], [Merchant], [ItemCode], [Qty], [FgItem], [PlanNo], [SuplierCode], [Approval], [BusyCode], [LotNo]) Values (0, 11, 6, 1, {Inv.AccCode}, '{item1["ProdNo"]}', CONVERT(Date,Getdate(),103), 0, {ItemCode}, {Qty}, {FGItem}, '', {Inv.SAccCode}, 0, {MIVchCode}, '{clsMain.MyString(item1["LotNo"])}') ";
                             Result = ObjExe.ExecuteSQL(sql);
                         }
                     }
@@ -1064,6 +1071,24 @@ namespace CRYSTAL_DRESSES_API.Repository
                 return new { Status = 0, Msg = ex.Message.ToString() };
             }
             return new { Status = 1, Msg = "Success", Data = IList };
+        }
+
+        public double GetBusyItemMasterPrice(string constr,  int ItemCode)
+        {
+            try
+            {
+                SQLHELPER ConObj = new SQLHELPER(constr);
+
+                string sql = $"Select Top 1 IsNull(D4, 0) as Price From [Master1] Where [Code] = {ItemCode} And [MasterType] = 6";
+                DataTable DT1 = ConObj.getTable(sql);
+
+                return (DT1 != null && DT1?.Rows.Count > 0) ? clsMain.MyDouble(DT1.Rows[0]["Price"]) : 0;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+
         }
     }
 }
