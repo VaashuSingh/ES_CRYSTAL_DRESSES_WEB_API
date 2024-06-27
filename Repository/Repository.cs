@@ -133,12 +133,14 @@ namespace CRYSTAL_DRESSES_API.Repository
 
                 if (SAccCode == 0)
                 {
-                    sql = $"Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo,A.MainFGItem,A.SRawCode,A.Lotno,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode,A.ItemCode as RItemCode,A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By C.[Name]";
+                    sql = $"Select A.RefNo as PONo, A.AccCode, A.CustName as AccName, '' as PlanNo, A.MainFGItem, A.SRawCode, A.Lotno, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.RItemCode, A.ItemCode, A.ItemName, A.ParentGrp as IGrp, ISNULL(Sum(D.Qty),0) As RQty, 0 AS IQty, 0 AS Price, 0 AS Amount From (Select A.RefNo, A.AccCode, ISNULL(B.[Name], '') AS CustName, A.MainFGItem, A.SRawCode, A.Lotno, A.FgItem, A.ItemCode as RItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp, A.RecType FROM ESReftran A Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code  Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp], A.MainFGItem, A.SRawCode, A.Lotno, A.RecType) A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode GROUP BY A.RefNo, A.AccCode, A.CustName, A.FgItem, A.RItemCode, A.ItemCode, A.[ItemName], A.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By A.[ItemName]";
+                    //sql = $"Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo,A.MainFGItem,A.SRawCode,A.Lotno,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode,A.ItemCode as RItemCode,A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By C.[Name]";
                     //sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp,IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode  = -101 And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
                 }
                 else
                 {
-                    sql = $"Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo,A.MainFGItem,A.SRawCode,A.Lotno,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode,A.ItemCode as RItemCode,A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode IN {(SAccCode, -101)} And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By C.[Name]";
+                    sql = $"Select A.RefNo as PONo, A.AccCode, A.CustName as AccName, '' as PlanNo, A.MainFGItem, A.SRawCode, A.Lotno, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.RItemCode, A.ItemCode, A.ItemName, A.ParentGrp as IGrp, ISNULL(Sum(D.Qty),0) As RQty, 0 AS IQty, 0 AS Price, 0 AS Amount From (Select A.RefNo, A.AccCode, ISNULL(B.[Name], '') AS CustName, A.MainFGItem, A.SRawCode, A.Lotno, A.FgItem, A.ItemCode as RItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp, A.RecType FROM ESReftran A Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code  Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode IN {(SAccCode, -101)} And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp], A.MainFGItem, A.SRawCode, A.Lotno, A.RecType) A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode GROUP BY A.RefNo, A.AccCode, A.CustName, A.FgItem, A.RItemCode, A.ItemCode, A.[ItemName], A.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By A.[ItemName]";
+                    //sql = $"Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo,A.MainFGItem,A.SRawCode,A.Lotno,0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode,A.ItemCode as RItemCode,A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '{PONo}' AND A.SuplierCode IN {(SAccCode, -101)} And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp],A.MainFGItem,A.SRawCode,A.Lotno Order By C.[Name]";
                     //sql = "Select A.RefNo as PONo, A.AccCode as CustCode, ISNULL(B.[Name], '') AS CustName, '' as PlanNo, 0 AS FGItemCode, IsNull(A.FgItem, 0) AS SFGItemCode, A.ItemCode, ISNULL(C.[Name], '') AS ItemName, C.ParentGrp as IGrp, IsNull(Sum(D.Qty),0) AS RQty,0 AS IQty, 0 AS Price, 0 AS Amount FROM ESReftran A Left join ESRefTran D On A.Rectype = D.Rectype And A.AccCode = D.AccCode And A.RefNo = D.RefNo And A.FGItem = D.FGItem And A.ItemCode = D.ItemCode Left Join Master1 B ON A.AccCode = B.Code AND B.MasterType = 2 Left Join Master1 C ON A.ItemCode = C.Code Where A.Rectype = 3 AND A.RefNo = '" + PONo + "' AND A.SuplierCode IN (" + SAccCode + ", -101) And A.Method = 1 GROUP BY A.RefNo, A.AccCode, B.[Name], A.FgItem, A.ItemCode, C.[Name], C.[ParentGrp] Order By C.[Name]";
                 }
                 System.Data.DataTable table = obj.getTable(sql);
@@ -146,8 +148,8 @@ namespace CRYSTAL_DRESSES_API.Repository
                 if (table != null && table.Rows.Count > 0)
                 {
                     productionOrder.PONo = table.Rows[0]["PONo"].ToString();
-                    productionOrder.CustCode = Convert.ToInt32(table.Rows[0]["CustCode"]);
-                    productionOrder.CustName = table.Rows[0]["CustName"].ToString();
+                    productionOrder.CustCode = Convert.ToInt32(table.Rows[0]["AccCode"]);
+                    productionOrder.CustName = table.Rows[0]["AccName"].ToString();
 
                     productionOrder.ProductionOrderDetails = new List<GetProductionOrderDetails>();
 
@@ -281,14 +283,14 @@ namespace CRYSTAL_DRESSES_API.Repository
 
                 if (!Connect)
                 {
-                    objResult.Status = 0; objResult.Msg = "Unable To Connect To Company"; objResult.OrderId = 0;
+                    objResult.Status = 0; objResult.Msg = "Unable To Connect To Company";
                     return objResult;
                 }
 
                 // Save MR invoice
                 if (!SaveVoucherFromXML(4, XMLStr, ref VchCode, FI, out string errMsg))
                 {
-                    objResult.Status = 0; objResult.Msg = errMsg; objResult.OrderId = 0;
+                    objResult.Status = 0; objResult.Msg = errMsg;
                     return objResult;
                 }
 
@@ -301,7 +303,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                 if (!SaveVoucherFromXML(11, XMLStr, ref VchCode, FI, out errMsg))
                 {
                     DeleteVoucher(FI, MRBusyCode, out errMsg);
-                    objResult.Status = 0; objResult.Msg = errMsg; objResult.OrderId = 0;
+                    objResult.Status = 0; objResult.Msg = errMsg;
                     return objResult;
                 }
 
@@ -313,7 +315,7 @@ namespace CRYSTAL_DRESSES_API.Repository
                     if (MRBusyCode > 0) { DeleteVoucher(FI, MRBusyCode, out errMsg); }
                     if (MIBusyCode > 0) { DeleteVoucher(FI, MIBusyCode, out errMsg); }
 
-                    objResult.Status = 0; objResult.Msg = "Posting not done ......."; objResult.OrderId = 0;
+                    objResult.Status = 0; objResult.Msg = "Posting not done .......";
                     return objResult;
                 }
 
@@ -329,7 +331,6 @@ namespace CRYSTAL_DRESSES_API.Repository
                     DeleteVoucher(FI, MIBusyCode, out errMsg);
                     objResult.Status = ResultsObj1.Status;
                     objResult.Msg = ResultsObj1.Msg;
-                    objResult.OrderId = 0;
                     return objResult;
                 }
                 // If save succeeds, proceed with AutoRefGeneratedInProductionOrder
@@ -342,17 +343,17 @@ namespace CRYSTAL_DRESSES_API.Repository
 
                     objResult.Status = ResultsObj.Status;
                     objResult.Msg = ResultsObj.Msg;
-                    objResult.OrderId = 0;
                     return objResult;
                 }
-
+                string Return_VchCode = string.Empty;
+                Return_VchCode = clsMain.MyInt(MRBusyCode) + "|" + clsMain.MyInt(MIBusyCode);
                 objResult.Status = 1;
-                objResult.Msg = "Success";
-                objResult.OrderId = clsMain.MyInt(VchCode);
+                objResult.Msg = "Success"; 
+                objResult.VchCode = Return_VchCode;
             }
             catch (Exception ex)
             {
-                objResult.Status = 0; objResult.Msg = ex.Message.ToString(); objResult.OrderId = 0;
+                objResult.Status = 0; objResult.Msg = ex.Message.ToString();
             }
             return objResult;
         }
@@ -522,8 +523,8 @@ namespace CRYSTAL_DRESSES_API.Repository
                 BusyVoucher BVch = new BusyVoucher();
                 BusyVoucher.MaterialReceipt ORD = new BusyVoucher.MaterialReceipt();
                 ORD.VchSeriesName = VchSeriesName; //Inv.SeriesName; //BVch.GetMasterCodeToName(ConnStr, SeriesCode).Replace("12", "");
-                ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
-                //ORD.Date = DateTime.UtcNow.ToString("29-04-2023");
+                //ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
+                ORD.Date = DateTime.UtcNow.ToString("29-04-2023");
                 ORD.VchNo = "";
                 ORD.VchType = VchType;
                 ORD.TranType = 3;
@@ -618,8 +619,8 @@ namespace CRYSTAL_DRESSES_API.Repository
                 BusyVoucher BVch = new BusyVoucher();
                 BusyVoucher.MaterialIssue ORD = new BusyVoucher.MaterialIssue();
                 ORD.VchSeriesName = VchSeriesName; //Inv.SeriesName; //BVch.GetMasterCodeToName(ConnStr, SeriesCode).Replace("12", "");
-                ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
-                //ORD.Date = DateTime.UtcNow.ToString("29-04-2023");
+                //ORD.Date = DateTime.UtcNow.ToString("dd-MM-yyyy");
+                ORD.Date = DateTime.UtcNow.ToString("29-04-2023");
                 ORD.VchNo = "";
                 ORD.VchType = VchType;
                 ORD.TranType = 8;
@@ -714,8 +715,11 @@ namespace CRYSTAL_DRESSES_API.Repository
             {
                 var CurrDate = DateTime.Today.ToString("dd/MMM/yyyy"); string sql = ""; int SNo = 0;
 
-                sql = $"Update Tran1 Set [AutoSync] = 1, [AccCode] = {inv.AccCode} Where VchCode = {MRVchCode} And VchType = 4";
+                sql = $"Update Tran1 Set [AutoSync] = 1, [AccCode] = {inv.AccCode}, [BusyVchCode] = {MIVchCode} Where VchCode = {MRVchCode} And VchType = 4";
                 int res = ObjCon.ExecuteSQL(sql);
+
+                sql = $"Update Tran1 Set [BusyVchCode] = {MRVchCode} Where VchCode = {MIVchCode} And VchType = 11";
+                int res0 = ObjCon.ExecuteSQL(sql);
 
                 foreach (var item in inv.ItemInvDetails)
                 {

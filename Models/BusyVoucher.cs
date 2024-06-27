@@ -287,7 +287,8 @@ namespace CRYSTAL_DRESSES_API.Models
             public string Msg { get; set; }
             //public string Message { get; set; }
             //public int Success { get; set; }
-            public int OrderId { get; set; }
+            //public int OrderId { get; set; }
+            public string VchCode { get; set; }
         }
         public class Receipt
         {
